@@ -1,0 +1,48 @@
+{% from "macros.html" import format_word_count %}
+
+{% extends "base.html" %}
+
+{% block title %}曲径读书{% endblock %}
+{% block head %}
+<style type="text/css">
+  .book-tag {
+    color: black;
+    font-size: 13px;
+    border-radius: 15px;
+    padding-top: 1px;
+    padding-right: 5px;
+    padding-left: 5px;
+    border: 1px solid;
+  }
+</style>{% endblock %}
+
+{% block body %}
+<div class="container">
+  <div class="row">
+    <div class="col s12 m12">
+      <div class="card">
+        <div class="card-content grey lighten-5">
+          <div class="card-title"><b>{{ book.book_name }}</b></div>
+          <div>{{ book.author }} - {{ book.label }}</div>
+          <div>上架日期：{{ book.pub_date }}</div>
+          <div>{{ book.status_name }} {{ format_word_count(book.word_count) }}</div>
+          <div>{{ book.type_name }}</div>
+          <div>浏览人数：{{ book.star }}</div>
+          <div class="valign-wrapper">
+            {% if book.hero %}<span class="book-tag deep-orange-text" style="margin-right: 1rem;margin-bottom: 1rem;">
+              {{ book.hero }}
+            </span>{% endif %}
+            {% if book.heroine %}<span class="book-tag blue-text" style="margin-right: 1rem;margin-bottom: 1rem;">
+              {{ book.heroine }}
+            </span>{% endif %}
+          </div>
+          {% if book.tag %}{% for l in book.tag %}<div class="chip">{{ l }}</div>{% endfor %}{% endif %}
+        </div>
+        <div class="card-action center">
+          <a href="{{ book_info_url }}" target="_blank">去看看</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

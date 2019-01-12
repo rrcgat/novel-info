@@ -1,0 +1,73 @@
+{% macro render_field(field) %}
+<div class="input-field col s12">
+  {{ field(**kwargs)|safe }}
+  {{ field.label }}
+</div>
+{% endmacro %}
+
+
+{% macro format_word_count(word_count) %}
+{% if word_count >= 10000 %}{{ word_count / 10000 }} 万字{% else %}{{ word_count }}字{% endif %}
+{% endmacro %}
+
+
+{% macro render_book_list(books) %}
+<ul class="collapsible" data-collapsible="accordion">
+{% for book in books %}
+<li>
+  <div class="collapsible-header" data-id={{ book.id }}>
+    <div class="book-block">
+      <div class="book-title flow-text"><b>{{ book.book_name }}</b></div>
+      <div class="book-title grey-text">{{ book.source_name }}</div>
+    </div>
+    <div class="book-block">
+      <div class="grey-text valign-wrapper"><i class="material-icons">perm_identity</i>{{ book.author }}</div>
+      <div class="grey-text valign-wrapper">{{ book.pub_date}}</div>
+    </div>
+    <div class="book-block book-bottom">
+      <div class="left">
+        <span class="book-tag {% if book.book_type == 4 %}grey-text{% elif book.book_type % 2 == 0 %}orange-text{% else %}deep-orange-text{% endif %}">
+          {{ book.type_name }}
+        </span>
+        <span class="book-tag {% if book.status == 0 %}blue-text{% elif book.status == 1%}light-green-text accent-3{% else %}blue-grey-text{% endif %}">
+          {{ book.status_name }}
+        </span>
+        <span class="book-tag grey-text">{{ book.label }}</span>
+      </div>
+      <div class="right grey-text">{{ format_word_count(book.word_count) }}</div>
+    </div>
+  </div>
+  <div class="collapsible-body">
+    <p><a href="{{ url_for('book_info', book_id=book.id) }}" class="black-text">{{ book.book_intro }}</a></p>
+  </div>
+</li>{% endfor %}
+</ul>
+{% endmacro %}
+
+
+{% macro pagination_widget(pagination, endpoint) %}
+  <ul class="pagination">
+    {% if pagination.prev %}
+    <li class="waves-effect">
+      <a href="{{ url_for(endpoint, page=pagination.prev, **kwargs) }}">
+        <i class="material-icons">chevron_left</i>
+      </a>
+    </li>{% endif %}
+    {% for p in pagination.iter_pages %}
+      {% if p %}
+        <li class={% if p == pagination.page %}"active"{% else %}"waves-effect"{% endif %}>
+          <a href="{{ url_for(endpoint, page=p, **kwargs) }}">{{ p }}</a>
+        </li>
+      {% else %}
+      <li class="disabled">...</li>
+      {% endif %}
+    {% endfor %}
+    {% if pagination.next %}
+    <li class="waves-effect">
+      <a href="{{ url_for(endpoint, page=pagination.next, **kwargs) }}">
+        <i class="material-icons">chevron_right</i>
+      </a>
+    </li>
+    {% endif %}
+  </ul>
+{% endmacro %}

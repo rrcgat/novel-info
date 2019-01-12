@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block bgcolor %}blue lighten-5{% endblock %}
+{% block navcolor %}blue{% endblock %}
+{% block body %}
+<div class="container center">
+  <div class="row">
+    <div class="col s12 m12">
+      <div class="card">
+        <div class="card-content">
+          <h5>{{ data }}找不到啦，请不要强人锁蓝呀。</h5>
+        </div>
+        <div class="card-action">
+          <a href="{{ url_for('index') }}">返回首页</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
