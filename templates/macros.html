@@ -17,15 +17,15 @@
 <li>
   <div class="collapsible-header" data-id={{ book.id }}>
     <div class="book-block">
-      <div class="book-title flow-text"><b>{{ book.book_name }}</b></div>
-      <div class="book-title grey-text">{{ book.source_name }}</div>
+      <div class="book-title flow-text valign-wrapper"><b>{{ book.book_name }}</b></div>
+      <div class="book-title grey-text valign-wrapper">{{ book.source_name }}</div>
     </div>
     <div class="book-block">
       <div class="grey-text valign-wrapper"><i class="material-icons">perm_identity</i>{{ book.author }}</div>
       <div class="grey-text valign-wrapper">{{ book.pub_date}}</div>
     </div>
     <div class="book-block book-bottom">
-      <div class="left">
+      <div class="left valign-wrapper">
         <span class="book-tag {% if book.book_type == 4 %}grey-text{% elif book.book_type % 2 == 0 %}orange-text{% else %}deep-orange-text{% endif %}">
           {{ book.type_name }}
         </span>
@@ -34,7 +34,7 @@
         </span>
         <span class="book-tag grey-text">{{ book.label }}</span>
       </div>
-      <div class="right grey-text">{{ format_word_count(book.word_count) }}</div>
+      <div class="right grey-text valign-wrapper">{{ format_word_count(book.word_count) }}</div>
     </div>
   </div>
   <div class="collapsible-body">

@@ -1,7 +1,5 @@
-{% extends "base.html" %}
-{% from "macros.html" import render_field %}
-
-{% block head %}
+{% extends "base.html" %} {% from "macros.html" import render_field %} {% block
+head %}
 <script>
   var tags = new Set({{ tags }})
   var chipData = []
@@ -18,14 +16,17 @@
     return indexed_array;
   }
   $(document).ready(function() {
-    $('select').material_select();
+    $('select').formSelect();
     $('#editNovel').click(function() {
       let data = formToJson($('#editForm').serializeArray())
       if (data.book_name === '') {
-        Materialize.toast('请输入书名', 4000)
+        M.toast({html: '请输入书名'})
         return false
       }
-      data.tags = Array.from(tags)
+      data.tags = []
+      for (cd of chipData) {
+        data.tags.push(cd.tag)
+      }
       $.ajaxSetup({
         beforeSend: function(xhr, settings) {
           if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
@@ -41,7 +42,7 @@
         dataType: 'json',
         async: true,
         success: function(res) {
-          Materialize.toast(res.data, 3000)
+          M.toast({html: res.data})
           setTimeout("window.location.href='{{ url_for('book_info', book_id=book.id)}}'", 3000)
         },
         fail: function(res) {
@@ -50,33 +51,34 @@
       });
       return false
     });
-    $('.chips').material_chip({
-      data: chipData
-    });
-    $('.chips').on('chip.add', function(e, chip){
-      tags.add(chip.tag)
-    });
-    $('.chips').on('chip.delete', function(e, chip){
-      tags.delete(chip.tag)
-    });
+
+  });
+  document.addEventListener('DOMContentLoaded', function() {
+    var elems = document.querySelectorAll('.chips');
+    var instances = M.Chips.init(elems, {data: chipData});
   });
 </script>
-{% endblock %}
-
-{% block body %}
+{% endblock %} {% block body %}
 
 <div class="container">
   <h3 class="center-align">编辑</h3>
-  <div id="container" class="container center-align orange-text text-darken-2"></div>
+  <div
+    id="container"
+    class="container center-align orange-text text-darken-2"
+  ></div>
   <div class="row">
     <form class="col s12" id="editForm" action="" method="POST">
-      {% for field in form %}
-        {{ render_field(field) }}
-      {% endfor %}
+      {% for field in form %} {{ render_field(field) }} {% endfor %}
       <label>自定义标签，Enter 添加</label>
       <div class="chips"></div>
       <div class="center-align">
-        <button id="editNovel" class="btn orange waves-effect waves-light" name="action">修改</button>
+        <button
+          id="editNovel"
+          class="btn orange waves-effect waves-light"
+          name="action"
+        >
+          修改
+        </button>
       </div>
     </form>
   </div>

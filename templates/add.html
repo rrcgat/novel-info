@@ -15,7 +15,7 @@
     return indexed_array;
   }
   $(document).ready(function() {
-    $('select').material_select();
+    $('select').formSelect();
     $('#addNovel').click(function() {
       let data = formToJson($('#addForm').serializeArray())
       if (data.book_name === '') {

@@ -4,21 +4,21 @@
 <meta charset="UTF-8">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <script src="http://code.jquery.com/jquery-latest.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/css/materialize.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>{% block title %}曲径读书{% endblock %}</title>
 {% block head %}{% endblock %}
 <script type="text/javascript">
 $( document ).ready(function(){
-  $(".button-collapse").sideNav();
+  $(".sidenav").sidenav();
 })
 </script>
 </head>
 <body class="{% block bgcolor %}grey lighten-5{% endblock %}">
   <nav class="{% block navcolor %}orange lighten-2{% endblock %}">
     <div class="nav-wrapper">
-      <a href="#" data-activates="mobile-demo" class="button-collapse"><i class="material-icons">menu</i></a>
+      <a href="#" data-activates="mobile-demo" class="sidenav"><i class="material-icons">menu</i></a>
       <ul class="right hide-on-med-and-down">
         <li><a href="{{ url_for('index') }}"><i class="material-icons left">home</i>主页</a></li>
         <li><a href="{{ url_for('add_novel') }}"><i class="material-icons left">add</i>添加</a></li>
@@ -32,7 +32,7 @@ $( document ).ready(function(){
           <i class="material-icons">close</i>
         </div>
       </form>
-      <ul class="side-nav" id="mobile-demo">
+      <ul class="sidenav" id="mobile-demo">
         <li><a href="{{ url_for('index') }}"><i class="material-icons left">home</i>主页</a></li>
         <li><a href="{{ url_for('add_novel') }}"><i class="material-icons left">add</i>添加</a></li>
         <li><a href="{{ url_for('contact') }}"><i class="material-icons left">chat</i>联系</a></li>
