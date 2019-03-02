@@ -17,16 +17,13 @@ DB_NAME = 'database name'
 
 UNKNOWN = 0
 
-SERIAL = 1
-END = 2
-ABANDONED = 3
+SERIAL = 1  # 连载
+END = 2  # 完结
+ABANDONED = 3  # 太监
 
-NO_HEROINE = 1
-SINGLE_HEROINE = 2
-SINGLE_HERO = 3
-BOY_LOVE = 4
-LILY = 5
-STALLION = 6
+NO_CP = 1  # 无 CP
+SINGLE_CP = 2  # 单 CP
+MULTI_CP = 3  # 多 CP
 
 QIDIAN = 1
 ZONGHENG = 2
@@ -40,15 +37,15 @@ BOOK_STATUS = {
     ABANDONED: '太监',
 }
 
+STATUS_TO_ID = {v: k for k, v in BOOK_STATUS.items()}
+STATUS_TO_ID['完本'] = END
+
 # 类型
 BOOK_TYPE = {
     UNKNOWN: '未知',
-    NO_HEROINE: '无女主',
-    SINGLE_HEROINE: '单女主',
-    SINGLE_HERO: '无男主',
-    BOY_LOVE: '耽美',
-    LILY: '百合',
-    STALLION: '种马'
+    NO_CP: '无 CP',
+    SINGLE_CP: '单 CP',
+    MULTI_CP: '多 CP/P'
 }
 
 # 书籍来源
@@ -65,8 +62,8 @@ INFO_URL = {
     ZONGHENG: 'http://book.zongheng.com/book/{}.html',
 }
 
-APPID = 'Wechat applet appid'
-SECRET = 'Wechat secret'
+APPID = '<appid>'
+SECRET = '<secret>'
 WECHAT_API = ('https://api.weixin.qq.com/sns/jscode2session?'
               f'appid={APPID}&'
               f'secret={SECRET}&'
