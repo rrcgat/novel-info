@@ -11,13 +11,13 @@ from flask_restful import Api
 
 
 from database import db_session
-from models import NovelInfo
+from models import BookInfo
 from forms import BookForm, EditBookForm
 from utils import dotdict, paginate, new_novel
 from spider import get_book_info
 from config import (SECRET_KEY, BOOK_STATUS, BOOK_TYPE, ABANDONED,
-                    BOOK_SOURCE_NAME, INFO_URL, SINGLE_HERO)
-from novel_api import Novel, Login, WIndex
+                    BOOK_SOURCE_NAME, INFO_URL, SINGLE_CP)
+from book_api import Login, WIndex, Author, Book, Star
 
 
 app = Flask(__name__)
@@ -26,8 +26,10 @@ csrf = CSRFProtect(app)
 
 api = Api(app, decorators=[csrf.exempt])
 api.add_resource(Login, '/api/login')
-api.add_resource(Novel, '/api/book')
 api.add_resource(WIndex, '/api/index')
+api.add_resource(Author, '/api/author')
+api.add_resource(Book, '/api/book')
+api.add_resource(Star, '/api/star')
 
 
 PAGE_SIZE = 10
@@ -38,7 +40,7 @@ def book_handler(func):
     '''
     @wraps(func)
     def inner(book_id):
-        book = NovelInfo.query.filter_by(id=book_id).first()
+        book = BookInfo.query.filter_by(id=book_id).first()
         if not book:
             return render_template('404.html', data='书籍'), 404
         return func(book)
@@ -50,9 +52,9 @@ def book_handler(func):
 @app.route('/index')
 @app.route('/<int:page>')
 def index(page=1):
-    query = NovelInfo.query.filter(NovelInfo.book_type < SINGLE_HERO)
-    query = query.filter(NovelInfo.status < ABANDONED)
-    query = query.order_by(NovelInfo.pub_date.desc())
+    query = BookInfo.query.filter(BookInfo.book_type < SINGLE_CP)
+    query = query.filter(BookInfo.status < ABANDONED)
+    query = query.order_by(BookInfo.pub_date.desc())
     total = math.ceil(query.count() / PAGE_SIZE)
     books = query.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
     return render_template('index.html',
@@ -63,26 +65,26 @@ def index(page=1):
 @app.route('/search')
 def search():
     kw = request.args.get('kw')
-    books = NovelInfo.query.filter(or_(NovelInfo.book_name == kw,
-                                       NovelInfo.author == kw,
-                                       NovelInfo.hero == kw,
-                                       NovelInfo.heroine == kw)).all()
+    books = BookInfo.query.filter(or_(BookInfo.book_name == kw,
+                                      BookInfo.author == kw,
+                                      BookInfo.hero == kw,
+                                      BookInfo.heroine == kw)).all()
     return render_template('search.html',
                            books=books)
 
 
-@app.route('/edit', methods=['POST'])
+# @app.route('/edit', methods=['POST'])
 def edit():
     info = dotdict(request.get_json())
     filters = {'id': info.id, 'book_name': info.book_name}
-    book = NovelInfo.query.filter_by(**filters).first()
+    book = BookInfo.query.filter_by(**filters).first()
     if book:
         book.hero = info.hero.strip()
         book.heroine = info.heroine.strip()
         book.status = int(info.status)
         book.source_id = info.source_id
         book.book_type = info.book_type
-        book.label = info.label
+        book.tag = info.tags
 
         db_session.add(book)
         db_session.commit()
@@ -136,7 +138,7 @@ def add_novel():
             'book_name': book_name,
             'source_id': source_id
         }
-        my_book = NovelInfo.query.filter_by(**filters).first()
+        my_book = BookInfo.query.filter_by(**filters).first()
         if my_book:
             return jsonify({'data': '书籍已存在'})
         # comment = book.get('comment').strip()
@@ -155,11 +157,6 @@ def add_novel():
             db_session.add(data)
             db_session.commit()
             return jsonify({'data': '已记录'})
-
-
-@app.route('/label')
-def label():
-    return 'label'
 
 
 @app.route('/contact')
