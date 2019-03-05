@@ -6,6 +6,7 @@ from flask import request
 from flask_restful import Resource
 import jwt
 import requests
+from sqlalchemy import update
 
 
 from database import db_session
@@ -292,23 +293,32 @@ class Book(Resource):
     @auth_token
     def put(self):
         content = request.get_json()
-        book = BookInfo.query.filter_by(id=content.id,
-                                        book_name=content.book_name).first()
+        book = BookInfo.query.filter_by(id=content.get('id', -1)).first()
         if not book:
             return {
-                'error': 'Can not modify book name'
+                'error': 'Book not found'
             }, 403
 
-        book.hero = content.get('hero', '').strip()
-        book.heroine = content.get('heroine', '').strip()
-        book.tag = list(content.get('tag'))
+        # book.hero = content.get('hero', '').strip()
+        # book.heroine = content.get('heroine', '').strip()
+        if type(content.get('tag')) == str:
+            if not book.tag:
+                book.tag = []
+            if content.get('new_tag'):  # 添加
+                book.tag.append(content.get('tag'))
+                book.tag = list(set(book.tag))
+            else:  # 删除
+                book.tag.remove(content.get('tag'))
+            stmt = update(BookInfo).where(f'id={book.id}').values(tag=book.tag)
+            db_session.execute(stmt)
 
-        if int(content.get('status')) in BOOK_STATUS:
+        elif int(content.get('status', -1)) in BOOK_STATUS:
             book.status = int(content.get('status'))
-        if int(content.get('book_type')) in BOOK_TYPE:
+            db_session.add(book)
+        elif int(content.get('book_type', -1)) in BOOK_TYPE:
+            db_session.add(book)
             book.book_type = int(content.get('book_type'))
 
-        db_session.add(book)
         db_session.commit()
         return {
             'msg': 'Success',

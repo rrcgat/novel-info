@@ -73,7 +73,7 @@ def search():
                            books=books)
 
 
-# @app.route('/edit', methods=['POST'])
+@app.route('/edit', methods=['POST'])
 def edit():
     info = dotdict(request.get_json())
     filters = {'id': info.id, 'book_name': info.book_name}
