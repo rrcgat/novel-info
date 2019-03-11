@@ -31,7 +31,7 @@ def autho_session(func):
     '''
     @wraps(func)
     def inner(*args, **kwargs):
-        sid = request.headers['sid']
+        sid = request.headers['Sid']
         if not sid:
             return {'error': 'Invalid session'}, 400
         user = UserInfo.query.filter_by(session_id=sid).first()
