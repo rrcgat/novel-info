@@ -1,39 +1,31 @@
-{% extends "base.html" %}
-{% block head %}
-<script type="text/javascript">
-  $(document).ready(function(){
-    $('.modal').modal();
-  });
-</script>
-{% endblock %}
-
-{% block body %}
+{% extends "base.html" %} {% block body %}
 <div class="container">
   <div class="row">
     <div class="col s12 m12">
       <div class="card blue-grey lighten-5">
         <div class="card-content">
-          <h5>是的，这个网站需要你的帮助</h5>
+          <h5>
+            是的，这个网站需要你的
+            <a href="https://github.com/rrcgat/novel-info">帮助</a>
+          </h5>
           <p>:)</p>
-          <span class="card-title">邮箱</span>
-          <p>rrcgat@gmail.com</p>
-          <span class="card-title">微信</span>
-          <p>rrcg77724</p>
         </div>
         <div class="card-action">
-          <a href="https://github.com/rrcgat/">帮助改进</a>
-          <a href="#modal1">赞赏一下</a>
+          <a class="modal-trigger" href="#modal2">赞赏一下</a>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<div id="modal1" class="modal center row">
+<div id="modal2" class="modal center row">
   <div class="modal-content">
     <h5>你有了收获才有价值</h5>
-    <img src="static/images/mm_reward_qrcode.png" style="height: 10rem;width: 10rem;">
+    <img
+      src="static/images/mm_reward_qrcode.png"
+      style="height: 10rem;width: 10rem;"
+    />
   </div>
-  <div class="modal-action modal-close waves-effect row">微信</div>
+  <div class="modal-action modal-close waves-effect row">好的</div>
 </div>
 {% endblock %}

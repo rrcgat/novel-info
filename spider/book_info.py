@@ -34,19 +34,19 @@ class QiDian():
         '''获取书籍简要信息'''
         if not self._book_info is None:
             return self._book_info
-        if not self.book_id:
-            res = requests.get(self.url, headers=self.headers)
-            if not res.ok:
-                self._book_info = {}
-                return self._book_info
+        # if not self.book_id:
+        res = requests.get(self.url, headers=self.headers)
+        if not res.ok:
+            self._book_info = {}
+            return self._book_info
 
-            bsObj = BeautifulSoup(res.text, 'lxml')
-            data = bsObj.find('a', class_='book-layout')
+        bsObj = BeautifulSoup(res.text, 'lxml')
+        data = bsObj.find('a', class_='book-layout')
 
-            if not data or data.h4.get_text().strip() != self.book_name:
-                self._book_info = {}
-                return self._book_info
-            self.book_id = data['href'].split('/')[-1]  # 起点书籍编号
+        if not data or data.h4.get_text().strip() != self.book_name:
+            self._book_info = {}
+            return self._book_info
+        self.book_id = data['href'].split('/')[-1]  # 起点书籍编号
         author = data.span.get_text().strip()[2:]  # 作者
         word_info = data.find('em',
                               class_='tag-small blue').get_text().strip()

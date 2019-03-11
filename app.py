@@ -50,7 +50,7 @@ def book_handler(func):
 # 主页
 @app.route('/')
 @app.route('/index')
-@app.route('/<int:page>')
+# @app.route('/<int:page>')
 def index(page=1):
     query = BookInfo.query.filter(BookInfo.book_type < SINGLE_CP)
     query = query.filter(BookInfo.status < ABANDONED)
@@ -73,7 +73,7 @@ def search():
                            books=books)
 
 
-@app.route('/edit', methods=['POST'])
+# @app.route('/edit', methods=['POST'])
 def edit():
     info = dotdict(request.get_json())
     filters = {'id': info.id, 'book_name': info.book_name}
@@ -97,7 +97,7 @@ def edit():
         }), 403
 
 
-@app.route('/edit/<int:book_id>')
+# @app.route('/edit/<int:book_id>')
 @book_handler
 def edit_novel(book):
     edit_form = EditBookForm(id=book.id,
@@ -123,7 +123,7 @@ def book_info(book):
                            book_info_url=url)
 
 
-@app.route('/add', methods=['GET', 'POST'])
+# @app.route('/add', methods=['GET', 'POST'])
 def add_novel():
     if request.method == 'GET':
         book_form = BookForm()

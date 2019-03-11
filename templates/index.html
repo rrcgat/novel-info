@@ -35,6 +35,17 @@ render_book_list %} {% block head %}
 {% endblock %} {% block body %}
 <div class="container">
   <div class="row">{{ render_book_list(books) }}</div>
-  <div class="row">{{ pagination_widget(pagination, '.index') }}</div>
+  <div class="card center">
+    <div class="card-content">
+      <p>更多请看微信小程序 :)</p>
+    </div>
+    <div class="card-conent">
+      <img
+        src="static/images/wechat-applet.jpg"
+        style="height: 10rem;width: 10rem;"
+      />
+    </div>
+  </div>
+  <!-- <div class="row"> pagination_widget(pagination, '.index') </div> -->
 </div>
 {{ super() }} {% endblock %}
