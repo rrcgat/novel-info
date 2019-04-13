@@ -43,7 +43,8 @@ class QiDian():
         bsObj = BeautifulSoup(res.text, 'lxml')
         data = bsObj.find('a', class_='book-layout')
 
-        if not data or data.h4.get_text().strip() != self.book_name:
+        if not data or (data.h4.get_text().strip()
+                        != self.book_name) or not data.span:
             self._book_info = {}
             return self._book_info
         self.book_id = data['href'].split('/')[-1]  # 起点书籍编号

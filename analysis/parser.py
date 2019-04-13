@@ -299,6 +299,8 @@ class TimeParser():
             return self._max_update
         i = 0
         max_update = 1
+        self._max_update = _info_wrapper(self.content[0])
+        self._max_update['count'] = 1
         while i < len(self.content) - 1:
             date = self.content[i].get(TIME).split()[0]
             update = 0
@@ -470,4 +472,3 @@ class Analysis():
         self.res.append(summary)
 
         return self.res
-

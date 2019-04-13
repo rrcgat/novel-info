@@ -91,7 +91,7 @@ class BookInfo(Base):
 
 
 class BookStar(Base):
-    '''作品欢迎程度'''
+    '''作品收藏'''
     __tablename__ = 'book_star'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, nullable=False)
