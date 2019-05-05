@@ -1,14 +1,11 @@
-{% extends "base.html" %}
-{% block head %}
+{% extends "base.html" %} {% block head %}
 <script type="text/javascript">
-  $(document).ready(function(){
-    $('.modal').modal();
-  });
+  $(document).ready(function() {
+    $('.modal').modal()
+  })
 </script>
-{% endblock %}
-{% block bgcolor %}yellow lighten-5{% endblock %}
-{% block navcolor %}yellow black-text{% endblock %}
-{% block body %}
+{% endblock %} {% block bgcolor %}yellow lighten-5{% endblock %} {% block
+navcolor %}yellow black-text{% endblock %} {% block body %}
 <div class="container center">
   <div class="row">
     <div class="col s12 m12">
@@ -17,7 +14,7 @@
           <h5>没蓝啦，可能需要你的 <a href="#modal1">支持</a>。</h5>
         </div>
         <div class="card-action">
-          <a href="{{ url_for('index') }}">返回首页</a>
+          <a href="{{ url_for('.index') }}">返回首页</a>
         </div>
       </div>
     </div>
@@ -26,7 +23,10 @@
 <div id="modal1" class="modal center row">
   <div class="modal-content">
     <h5>大橘为重 :)</h5>
-    <img src="{{ url_for('static', filename='images/mm_reward_qrcode.png') }}" style="height: 10rem;width: 10rem;">
+    <img
+      src="{{ url_for('static', filename='images/mm_reward_qrcode.png') }}"
+      style="height: 10rem;width: 10rem;"
+    />
   </div>
   <div class="modal-action modal-close waves-effect row">微信</div>
 </div>

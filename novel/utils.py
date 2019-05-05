@@ -3,12 +3,12 @@ import datetime
 from hashlib import md5
 
 
-from models import BookInfo
-from config import UNKNOWN, SECRET_KEY
+from .models import Book
+from .settings import UNKNOWN
 
 
 def hash_session(text):
-    return md5((text+SECRET_KEY).encode()).hexdigest()[8:-8]
+    return md5((text+'SECRET_KEY').encode()).hexdigest()[8:-8]
 
 
 class dotdict(dict):
@@ -40,18 +40,18 @@ def paginate(current, total):
 
 
 def new_novel(book_info, hero='', heroine='', tag=None):
-    '''根据书籍信息产生 `BookInfo` 以添加到数据库
+    '''根据书籍信息产生 `Book` 以添加到数据库
     '''
-    return BookInfo(book_id=book_info.get('book_id', UNKNOWN),
-                    source_id=book_info.get('source_id', UNKNOWN),
-                    book_name=book_info['book_name'],
-                    author=book_info['author'],
-                    pub_date=book_info.get('pub_date'),
-                    word_count=book_info.get('word_count', UNKNOWN),
-                    hero=hero,
-                    heroine=heroine,
-                    status=book_info.get('status'),
-                    book_type=book_info.get('book_type', UNKNOWN),
-                    label=book_info.get('label', '未知'),
-                    tag=tag,
-                    book_intro=book_info.get('intro', '什么都没有。'))
+    return Book(book_id=book_info.get('book_id', UNKNOWN),
+                source_id=book_info.get('source_id', UNKNOWN),
+                book_name=book_info['book_name'],
+                author=book_info['author'],
+                pub_date=book_info.get('pub_date'),
+                word_count=book_info.get('word_count', UNKNOWN),
+                hero=hero,
+                heroine=heroine,
+                status=book_info.get('status'),
+                book_type=book_info.get('book_type', UNKNOWN),
+                label=book_info.get('label', '未知'),
+                tag=tag,
+                book_intro=book_info.get('intro', '什么都没有。'))

@@ -108,6 +108,3 @@ archive/
 
 # vscode files
 .vscode
-
-# config file
-config.py

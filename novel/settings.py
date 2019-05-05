@@ -1,20 +1,7 @@
+
 '''
 Configuration
 '''
-import uuid
-
-
-SECRET_KEY = 'Secret key only you know.'
-JWT_KEY = uuid.uuid1()
-
-
-DB_ENGINE = 'postgresql'
-DB_USER = '<database user>'
-DB_PASS = 'database password'
-DB_HOST = '127.0.0.1:5432'
-DB_NAME = 'database name'
-
-
 UNKNOWN = 0
 
 SERIAL = 1  # 连载
@@ -31,10 +18,10 @@ ZONGHENG = 2
 
 # 状态
 BOOK_STATUS = {
-    UNKNOWN: '未知',
-    SERIAL: '连载',
-    END: '完结',
-    ABANDONED: '太监',
+    UNKNOWN: '未知',  # 0
+    SERIAL: '连载',  # 1
+    END: '完结',  # 2
+    ABANDONED: '太监',  # 3
 }
 
 STATUS_TO_ID = {v: k for k, v in BOOK_STATUS.items()}
@@ -61,13 +48,5 @@ INFO_URL = {
     QIDIAN: 'https://book.qidian.com/info/{}',
     ZONGHENG: 'http://book.zongheng.com/book/{}.html',
 }
-
-APPID = '<appid>'
-SECRET = '<secret>'
-WECHAT_API = ('https://api.weixin.qq.com/sns/jscode2session?'
-              f'appid={APPID}&'
-              f'secret={SECRET}&'
-              'js_code={}&'
-              'grant_type=authorization_code')
 
 PAGE_SIZE = 10

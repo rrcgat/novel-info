@@ -37,22 +37,22 @@
             >
           </li>
           <li>
-            <a href="{{ url_for('index') }}"
+            <a href="{{ url_for('.index') }}"
               ><i class="material-icons left">home</i>主页</a
             >
           </li>
           <li>
-            <a href="{{ url_for('contact') }}"
+            <a href="{{ url_for('.contact') }}"
               ><i class="material-icons left">chat</i>联系</a
             >
           </li>
           <li>
-            <a href="{{ url_for('help') }}"
+            <a href="{{ url_for('.help') }}"
               ><i class="material-icons left">help</i>帮助</a
             >
           </li>
         </ul>
-        <form class="hide-on-med-and-down" action="{{ url_for('search') }}">
+        <form class="hide-on-med-and-down" action="{{ url_for('.search') }}">
           <div class="right input-field">
             <input
               id="search"
@@ -69,17 +69,17 @@
         </form>
         <ul class="sidenav" id="mobile-demo">
           <li>
-            <a href="{{ url_for('index') }}"
+            <a href="{{ url_for('.index') }}"
               ><i class="material-icons left">home</i>主页</a
             >
           </li>
           <li>
-            <a href="{{ url_for('contact') }}"
+            <a href="{{ url_for('.contact') }}"
               ><i class="material-icons left">chat</i>联系</a
             >
           </li>
           <li>
-            <a href="{{ url_for('help') }}"
+            <a href="{{ url_for('.help') }}"
               ><i class="material-icons left">help</i>帮助</a
             >
           </li>
@@ -122,7 +122,11 @@
             target="_blank"
             >粤 ICP 备 18026257 号 - 2</a
           >
-          <a class="black-text text-lighten-4 right" href="/help">帮助</a>
+          <a
+            class="black-text text-lighten-4 right"
+            href="{{ url_for('.help') }}"
+            >帮助</a
+          >
         </div>
       </div>
     </footer>

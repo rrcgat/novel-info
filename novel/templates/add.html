@@ -1,21 +1,17 @@
-{% extends "base.html" %}
-{% from "macros.html" import render_field %}
-
-{% block title %}添加小说{% endblock %}
-
-{% block head %}
+{% extends "base.html" %} {% from "macros.html" import render_field %} {% block
+title %}添加小说{% endblock %} {% block head %}
 <script>
   var label = new Set()
   function formToJson(formData) {
-    let unindexed_array = formData;
-    let indexed_array = {};
+    let unindexed_array = formData
+    let indexed_array = {}
     $.map(unindexed_array, function(n, i) {
-      indexed_array[n['name']] = n['value'];
-    });
-    return indexed_array;
+      indexed_array[n['name']] = n['value']
+    })
+    return indexed_array
   }
   $(document).ready(function() {
-    $('select').formSelect();
+    $('select').formSelect()
     $('#addNovel').click(function() {
       let data = formToJson($('#addForm').serializeArray())
       if (data.book_name === '') {
@@ -23,54 +19,64 @@
         return false
       }
       data.label = Array.from(label)
-      var csrf_token = "{{ csrf_token() }}";
+      var csrf_token = '{{ csrf_token() }}'
       $.ajaxSetup({
         beforeSend: function(xhr, settings) {
-          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+          if (
+            !/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) &&
+            !this.crossDomain
+          ) {
+            xhr.setRequestHeader('X-CSRFToken', csrf_token)
           }
         }
-      });
+      })
       $.ajax({
-        url: "{{ url_for('add_novel') }}",
+        url: "{{ url_for('.add_novel') }}",
         type: 'POST',
         data: JSON.stringify(data),
         contentType: 'application/json; charset=utf-8',
         dataType: 'json',
         async: true,
         success: function(response) {
-          $('#container').html(response.data);
+          $('#container').html(response.data)
           Materialize.toast(response.data, 4000)
         }
-      });
+      })
       return false
-    });
-    $('.chips').material_chip();
-    $('.chips').on('chip.add', function(e, chip){
+    })
+    $('.chips').material_chip()
+    $('.chips').on('chip.add', function(e, chip) {
       label.add(chip.tag)
-    });
-    $('.chips').on('chip.delete', function(e, chip){
+    })
+    $('.chips').on('chip.delete', function(e, chip) {
       label.delete(chip.tag)
-    });
-  });
+    })
+  })
 </script>
-{% endblock %}
-
-{% block body %}
+{% endblock %} {% block body %}
 <div class="container">
   <h3 class="center-align">添加小说</h3>
-  <div id="container" class="container center-align orange-text text-darken-2"></div>
+  <div
+    id="container"
+    class="container center-align orange-text text-darken-2"
+  ></div>
   <div class="row">
     <form class="col s12" id="addForm" action="" method="POST">
       {% for field in form %}
-        {{ render_field(field) }}
+      {{ render_field(field) }}
       {% endfor %}
       <label>自定义标签，Enter 添加</label>
       <div class="chips"></div>
       <label>介绍/备注</label>
       <textarea class="materialize-textarea m6 l6" name="comment"></textarea>
       <div class="center-align">
-        <button id="addNovel" class="btn orange waves-effect waves-light" name="action">添加</button>
+        <button
+          id="addNovel"
+          class="btn orange waves-effect waves-light"
+          name="action"
+        >
+          添加
+        </button>
       </div>
     </form>
   </div>

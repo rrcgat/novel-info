@@ -3,7 +3,9 @@
 '''
 
 from wtforms import (Form, StringField, SelectField)
-from config import BOOK_SOURCE_NAME, BOOK_STATUS, BOOK_TYPE
+
+
+from .config import BOOK_SOURCE_NAME, BOOK_STATUS, BOOK_TYPE
 
 
 WEBSITE_CHOICES = [(a, b) for a, b in BOOK_SOURCE_NAME.items()]

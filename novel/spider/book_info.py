@@ -4,7 +4,7 @@ import json
 
 from bs4 import BeautifulSoup
 
-from config import QIDIAN, UNKNOWN, ZONGHENG, STATUS_TO_ID
+from novel.settings import QIDIAN, UNKNOWN, ZONGHENG, STATUS_TO_ID
 from .config import HEADERS_IPHONE, HEADERS_CHROME
 
 QIDM_SEARCH_URL = 'https://m.qidian.com/search?kw={}'
@@ -40,6 +40,8 @@ class QiDian():
             self._book_info = {}
             return self._book_info
 
+        with open('aa.html', mode='w') as f:
+            f.write(res.text)
         bsObj = BeautifulSoup(res.text, 'lxml')
         data = bsObj.find('a', class_='book-layout')
 
