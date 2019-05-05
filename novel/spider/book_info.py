@@ -40,8 +40,6 @@ class QiDian():
             self._book_info = {}
             return self._book_info
 
-        with open('aa.html', mode='w') as f:
-            f.write(res.text)
         bsObj = BeautifulSoup(res.text, 'lxml')
         data = bsObj.find('a', class_='book-layout')
 
