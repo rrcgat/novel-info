@@ -1,8 +1,10 @@
-import requests
 import re
 import json
 
+
+import requests
 from bs4 import BeautifulSoup
+
 
 from novel.settings import QIDIAN, UNKNOWN, ZONGHENG, STATUS_TO_ID
 from .config import HEADERS_IPHONE, HEADERS_CHROME
