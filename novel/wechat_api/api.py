@@ -110,7 +110,7 @@ class Login(Resource):
 class Search_(Resource):
     '''Search by tag, book name and other keywords'''
 
-    # @auth_token
+    @auth_token
     def get(self):
         kw = request.args.get('kw')
         page = int(request.args.get('page', 1))
