@@ -74,7 +74,7 @@ class Book(db.Model):
     heroine = db.Column(db.String(32), default='')  # 女主
     status = db.Column(db.SMALLINT, default='', comment='Book status')
     book_type = db.Column(db.SMALLINT, default=UNKNOWN)  # 类型
-    label_id = db.Column(db.Integer, db.ForeignKey('tag.id'))
+    label_id = db.Column(db.Integer, db.ForeignKey('label.id'))
     browse = db.Column(db.Integer, default=0, comment='Browse number')
     book_intro = db.Column(db.String(1000), default='',
                            comment='Book introduction')
@@ -83,8 +83,8 @@ class Book(db.Model):
 
     extra = db.relationship('BookExtra', backref='book',
                             lazy=True, uselist=False)
-    label = db.relationship('Tag', lazy=False, uselist=False,
-                            backref=db.backref('label_books', lazy='dynamic'))
+    label = db.relationship('Label', lazy=False, uselist=False,
+                            backref=db.backref('books', lazy='dynamic'))
     tags = db.relationship('Tag', secondary=tags, lazy='dynamic',
                            backref=db.backref('books', lazy='dynamic'))
     keywords = db.relationship('Keyword', secondary=keywords, lazy='dynamic',
@@ -106,7 +106,6 @@ class Book(db.Model):
         info = {
             'id': self.id,
             'source': self.source_name,
-            # 'source_book_id': self.source_book_id,
             'book_name': self.book_name,
             'author': self.author,
             'pub_date': self.pub_date,
@@ -127,12 +126,22 @@ class Book(db.Model):
         return f'<{self.id}: {self.book_name}>'
 
 
-class Tag(db.Model):
-    '''网站/用户标签'''
+class Label(db.Model):
+    '''网站标签'''
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(32), unique=True,
                      index=True, nullable=False)
+
+
+class Tag(db.Model):
+    '''用户标签'''
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(32), unique=True,
+                     index=True, nullable=False)
+    normalized_name = db.Column(db.String(32), index=True, nullable=False,
+                                comment='Normalized words')
 
 
 class Keyword(db.Model):
