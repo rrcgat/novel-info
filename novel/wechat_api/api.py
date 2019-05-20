@@ -1,5 +1,6 @@
 from functools import wraps
 import datetime
+import re
 from uuid import uuid1, uuid5
 
 from flask import request, current_app
@@ -9,8 +10,9 @@ import requests
 from sqlalchemy import or_
 
 
+from zhtools import T2S
 from novel.database import db
-from novel.models import Book, User, BookExtra, Author, Star, Tag
+from novel.models import Book, User, BookExtra, Author, Star, Tag, Label
 from novel.spider import get_author_info, QiDian
 from novel.analysis import Analysis
 from novel.settings import (
@@ -34,6 +36,33 @@ _book_type = {
 }
 
 
+TAG_REGEX = re.compile(r'^[\u4e00-\u9fa5a-zA-Z0-9]+')
+
+
+def commit(my_db):
+    '''Commit session, if fails, rollback'''
+
+    try:
+        my_db.session.commit()
+    except:
+        my_db.session.rollback()
+
+
+def normailize(text):
+    '''对文本进行正则化
+
+    主要作用：
+    1. 从开头提取连续的中文、英文或阿拉伯数字
+    2. 英文小写转为大写
+    3. 中文繁体转简体
+    '''
+    match = TAG_REGEX.match(text.strip())
+    if not match:
+        return ''
+    text = match.group().upper()
+    return T2S(text)[:32]
+
+
 def auth_session(func):
     '''Check session
     '''
@@ -41,10 +70,10 @@ def auth_session(func):
     def inner(*args, **kwargs):
         sid = request.headers['Sid']
         if not sid:
-            return {'error': 'Invalid session'}, 400
+            return {'error': 'Invalid session'}, 401
         user = User.query.filter_by(session_id=sid).first()
         if not user:
-            return {'error': 'Session expired'}, 400
+            return {'error': 'Session expired'}, 401
         return func(*args, user=user, **kwargs)
     return inner
 
@@ -58,10 +87,9 @@ def auth_token(func):
             token = request.headers['Authorization'].encode('utf-8')
             jwt.decode(token, current_app.config['JWT_KEY'])
         except jwt.ExpiredSignatureError:
-            return {'error': 'Token expired'}, 400
+            return {'error': 'Token expired'}, 401
         except Exception as e:
-            print(e)
-            return {'error': 'Invalid token'}, 400
+            return {'error': 'Invalid token'}, 401
         return func(*args, **kwargs)
     return inner
 
@@ -71,6 +99,44 @@ def _paginate(query, page):
 
     query = query.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
     return query
+
+
+def add_and_commit_new_book(book_info):
+    '''Add new book and commit to database'''
+
+    label = Label.query.filter_by(name=book_info['label']).first()
+    if not label:
+        label = Label(name=book_info['label'])
+        db.session.add(label)
+        db.session.commit()
+
+    book = Book(source_book_id=book_info.get('book_id', UNKNOWN),
+                source_id=book_info.get('source_id', UNKNOWN),
+                book_name=book_info['book_name'],
+                author=book_info['author'],
+                pub_date=book_info.get('pub_date'),
+                word_count=book_info.get('word_count', 0),
+                status=book_info.get('status'),
+                label_id=label.id,
+                book_intro=book_info.get('intro', '什么都没有。'))
+    db.session.add(book)
+    db.session.commit()
+    return book
+
+
+def check_book(func):
+    '''Check book'''
+
+    @wraps(func)
+    def inner(*args, **kwargs):
+        content = request.get_json()
+        book = Book.query.filter_by(id=content.get('id', -1)).first()
+        if not book:
+            return {
+                'error': 'Book not found'
+            }, 404
+        return func(*args, book=book, content=content, **kwargs)
+    return inner
 
 
 class Login(Resource):
@@ -112,7 +178,8 @@ class Search_(Resource):
 
     @auth_token
     def get(self):
-        kw = request.args.get('kw')
+        kw = request.args.get('kw').strip()
+        normal_kw = normailize(kw)
         page = int(request.args.get('page', 1))
         book = Book.query.filter_by(book_name=kw).first()
         if book:
@@ -123,8 +190,11 @@ class Search_(Resource):
         if kw.upper() in _book_type:
             books = Book.query.filter_by(book_type=_book_type[kw.upper()])
         else:
-            books = Book.query.filter(or_(Book.tags.any(name=kw),
-                                          Book.keywords.any(name=kw)))
+            books = Book.query.filter(or_(
+                Book.label.has(name=kw),
+                Book.tags.any(normalized_name=normal_kw),
+                Book.keywords.any(name=kw)
+            ))
 
         books = books.order_by(Book.pub_date.desc())
         if not books.all():
@@ -241,44 +311,6 @@ class Author_(Resource):
         return info
 
 
-def add_and_commit_new_book(book_info):
-    '''Add new book and commit to database'''
-
-    label = Tag.query.filter_by(name=book_info['label']).first()
-    if not label:
-        label = Tag(name=book_info['label'])
-        db.session.add(label)
-        db.session.commit()
-
-    book = Book(source_book_id=book_info.get('book_id', UNKNOWN),
-                source_id=book_info.get('source_id', UNKNOWN),
-                book_name=book_info['book_name'],
-                author=book_info['author'],
-                pub_date=book_info.get('pub_date'),
-                word_count=book_info.get('word_count', 0),
-                status=book_info.get('status'),
-                label_id=label.id,
-                book_intro=book_info.get('intro', '什么都没有。'))
-    db.session.add(book)
-    db.session.commit()
-    return book
-
-
-def check_book(func):
-    '''Check book'''
-
-    @wraps(func)
-    def inner(*args, **kwargs):
-        content = request.get_json()
-        book = Book.query.filter_by(id=content.get('id', -1)).first()
-        if not book:
-            return {
-                'error': 'Book not found'
-            }, 404
-        return func(*args, book=book, content=content, **kwargs)
-    return inner
-
-
 class Book_(Resource):
     '''QiDian Novel api'''
 
@@ -288,25 +320,19 @@ class Book_(Resource):
         if name:
             book = Book.query.filter_by(book_name=name,
                                         source_id=QIDIAN).first()
-        elif request.args.get('id'):
+        else:
             try:
-                book_id = int(request.args.get('id'))
-                book = Book.query.filter_by(id=book_id).first()
+                book = Book.query.get(int(request.args.get('id')))
                 if not book:
                     return {'error': 'Book not found by id'}, 404
-            except ValueError:
+            except (ValueError, TypeError):
                 return {'error': 'Invalid parameter'}, 400
-        else:
-            return {'error': 'Invalid parameter'}, 400
 
         if not book or (
             book.status != END
             and (datetime.datetime.now() - book.update_time).days > 7
         ):
-            if book:
-                qd = QiDian(book.book_name)
-            else:
-                qd = QiDian(name)
+            qd = QiDian((book and book.book_name) or name)
             book_info = qd.book_info()
             if not book_info:
                 return {'error': 'Book not found by gived name'}, 404
@@ -339,14 +365,21 @@ class Book_(Resource):
     @check_book
     def post(self, book, content):
         '''Add tag'''
-        tag = Tag.query.filter_by(name=content['tag']).first()
+        origin = content['tag'].strip()
+        normal_name = normailize(origin)
+        if not normal_name:
+            return {
+                'error': 'Invalid tag name'
+            }, 400
+        tag = Tag.query.filter_by(name=origin[:32]).first()
         if not tag:
-            tag = Tag(name=content['tag'])
+            tag = Tag(name=origin[:32], normalized_name=normal_name)
             db.session.add(tag)
-            db.session.commit()
-        book.tags.append(tag)
-        db.session.add(book)
-        db.session.commit()
+            commit(db)
+        if tag not in book.tags:
+            book.tags.append(tag)
+            db.session.add(book)
+            commit(db)
         return {
             'msg': 'New tag created'
         }, 201
@@ -370,11 +403,12 @@ class Book_(Resource):
     @check_book
     def delete(self, book, content):
         '''Delete tag'''
-        tag = book.tags.filter_by(name=content['tag']).first()
+        tag = book.tags.filter_by(
+            normalized_name=normailize(content['tag'])).first()
         if tag:  # 删除
             book.tags.remove(tag)
             db.session.add(book)
-            db.session.commit()
+            commit(db)
         return {
             'msg': 'Deleted success',
         }, 204
