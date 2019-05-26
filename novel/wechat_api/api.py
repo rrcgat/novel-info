@@ -68,7 +68,7 @@ def auth_session(func):
     '''
     @wraps(func)
     def inner(*args, **kwargs):
-        sid = request.headers['Sid']
+        sid = request.headers.get('Sid')
         if not sid:
             return {'error': 'Invalid session'}, 401
         user = User.query.filter_by(session_id=sid).first()
@@ -139,17 +139,39 @@ def check_book(func):
     return inner
 
 
+def check_request_args(*required_args):
+    '''Check if request methods'(except get) argument, use JSON'''
+
+    def decorator(func):
+        def inner(*args, **kwargs):
+            content = request.get_json() or {}
+            lack = []
+            for arg in required_args:
+                if arg not in content:
+                    lack.append(arg)
+            if not lack:
+                return func(*args, **kwargs)
+            error = 'Must have <{}> argument(s) with JSON format'
+            return {
+                'error': error.format(', '.join(lack))
+            }, 400
+        return inner
+    return decorator
+
+
 class Login(Resource):
     '''微信登录'''
 
     def get(self):
         code = request.args.get('code')
+        if not code:
+            return {'error': 'Must have <code> argument'}, 400
         url = current_app.config['WECHAT_API'].format(code)
         wx_data = requests.get(url).json()
         try:
             session_id = uuid5(uuid1(), wx_data['openid']).hex
         except KeyError:
-            return {'error': 'Code invalid'}, 401
+            return {'error': 'Code invalid'}, 400
         user = User.query.filter_by(open_id=wx_data['openid']).first()
         if user:
             user.session_id = session_id
@@ -215,7 +237,6 @@ class Search_(Resource):
 class Star_(Resource):
     '''添加、删除、获取喜欢的书籍'''
 
-    @auth_token
     @auth_session
     def get(self, user: User):
         stars = user.stars
@@ -246,8 +267,8 @@ class Star_(Resource):
                 'dislike': stars.filter_by(star=0).count()
             }
 
-    @auth_token
     @auth_session
+    @check_request_args('book_id', 'star')
     def post(self, user: User):
         res = request.get_json()
         star = user.stars.filter_by(book_id=res['book_id']).first()
@@ -267,8 +288,8 @@ class Star_(Resource):
             'msg': 'Success'
         }, 201
 
-    @auth_token
     @auth_session
+    @check_request_args('book_id')
     def delete(self, user: User):
         res = request.get_json()
         star = user.stars.filter_by(book_id=res['book_id']).first()
@@ -362,6 +383,7 @@ class Book_(Resource):
         }
 
     @auth_token
+    @check_request_args('tag', 'id')
     @check_book
     def post(self, book, content):
         '''Add tag'''
@@ -385,6 +407,7 @@ class Book_(Resource):
         }, 201
 
     @auth_token
+    @check_request_args('id')
     @check_book
     def put(self, book, content):
         if int(content.get('status', -1)) in BOOK_STATUS:
@@ -400,6 +423,7 @@ class Book_(Resource):
         }
 
     @auth_token
+    @check_request_args('tag', 'id')
     @check_book
     def delete(self, book, content):
         '''Delete tag'''

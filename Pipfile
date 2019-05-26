@@ -30,6 +30,7 @@ pyjwt = "*"
 uwsgi = "*"
 lxml = "*"
 flask-sqlalchemy = "*"
+pytest = "*"
 
 [dev-packages]
 
