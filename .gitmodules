@@ -1,0 +1,3 @@
+[submodule "zhtools"]
+	path = zhtools
+	url = https://github.com/rrcgat/zhtools.git
