@@ -1,3 +1,6 @@
 [submodule "zhtools"]
 	path = zhtools
 	url = https://github.com/rrcgat/zhtools.git
+[submodule "word_filter"]
+	path = word_filter
+	url = git@github.com:rrcgat/word_filter.git

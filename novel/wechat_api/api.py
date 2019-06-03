@@ -9,8 +9,8 @@ import jwt
 import requests
 from sqlalchemy import or_
 
-
-from zhtools import T2S
+from zhtools import t2s
+from word_filter import dfa
 from novel.database import db
 from novel.models import Book, User, BookExtra, Author, Star, Tag, Label
 from novel.spider import get_author_info, QiDian
@@ -36,7 +36,8 @@ _book_type = {
 }
 
 
-TAG_REGEX = re.compile(r'^[\u4e00-\u9fa5a-zA-Z0-9]+')
+TAG_PATTERN = re.compile(r'^[\u4e00-\u9fa5a-zA-Z0-9]+')
+CN_PATTERN = re.compile('[\u4e00-\u9fa5]+')
 
 
 def commit(my_db):
@@ -56,11 +57,11 @@ def normailize(text):
     2. 英文小写转为大写
     3. 中文繁体转简体
     '''
-    match = TAG_REGEX.match(text.strip())
+    match = TAG_PATTERN.match(text.strip())
     if not match:
         return ''
     text = match.group().upper()
-    return T2S(text)[:32]
+    return t2s(text)[:32]
 
 
 def auth_session(func):
@@ -388,6 +389,9 @@ class Book_(Resource):
     def post(self, book, content):
         '''Add tag'''
         origin = content['tag'].strip()
+        if (dfa.is_sensitive(origin)
+            or dfa.is_sensitive(''.join(CN_PATTERN.findall(origin)))):
+            return {'error': 'Sensitive word'}, 400
         normal_name = normailize(origin)
         if not normal_name:
             return {
