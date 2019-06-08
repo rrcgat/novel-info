@@ -29,8 +29,10 @@ from novel.settings import (
 _book_type = {
     '无CP': NO_CP,
     '无 CP': NO_CP,
+    '无女主': NO_CP,
     '单CP': SINGLE_CP,
     '单 CP': SINGLE_CP,
+    '单女主': SINGLE_CP,
     '多CP': MULTI_CP,
     '多 CP': MULTI_CP
 }
